@@ -1,0 +1,9 @@
+<resources>
+    <!--    <string name=""></string>-->
+    <string name="app_name">CH3_5HW_API_TypeA</string>
+    <string name="img_search">이미지 검색</string>
+    <string name="search">검색</string>
+    <string name="storage">내 보관함</string>
+    <string name="dummy_title">Daum 카페</string>
+    <string name="dummy_date">2024-01-21 22:50:23</string>
+</resources>
