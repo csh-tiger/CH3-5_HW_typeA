@@ -14,7 +14,7 @@ class Adapter(val mItems: MutableList<DataItem>) : RecyclerView.Adapter<Adapter.
         fun onClick(view : View, position : Int)
     }
 
-    var itemClick: ItemClick? = null
+    var itemClick : ItemClick? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val binding = ItemRecyclerViewGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -31,7 +31,7 @@ class Adapter(val mItems: MutableList<DataItem>) : RecyclerView.Adapter<Adapter.
             .placeholder(R.drawable.ic_launcher_background)
             .error(R.drawable.ic_launcher_background)
             .fallback(R.drawable.ic_launcher_background)
-            .circleCrop()
+//            .circleCrop()
             .into(holder.itemImage)
         holder.itemTitle.text = mItems[position].siteName
         holder.itemDate.text = mItems[position].datetime

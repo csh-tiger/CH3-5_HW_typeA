@@ -26,10 +26,10 @@ class ImageListFragment : Fragment() {
     private var _binding: FragmentImageListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var adapter: Adapter
-
     var items = mutableListOf<DataItem>()
     var storageList:ArrayList<Int> = ArrayList()
+
+    private var adapter = Adapter(items)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,9 +51,7 @@ class ImageListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-
+        //검색버튼 클릭시 검색결과 리스트 출력
         binding.btnImgListSearch.setOnClickListener {
             val searchText = binding.editImgListSearch.text.toString()
 
@@ -76,21 +74,22 @@ class ImageListFragment : Fragment() {
 //            Log.d("ImageFragment", "item=$items")
         }
 
+        //아이템 클릭시 좋아요 표시 & 데이터 전달
 //        adapter = Adapter(items)
-//        adapter.itemClick = object : Adapter.ItemClick {
-//            override fun onClick(view: View, position: Int) {
-//                Log.d("ImageFragment", "item Clicked")
-//                val itemFavorite = adapter.Holder(view as ItemRecyclerViewGridBinding).itemFavorite
-//                itemFavorite.visibility = ImageView.VISIBLE
-//
-//                storageList.add(position)
-//                val fragmentToStorage = StorageListFragment.newInstance(storageList)
-//                requireActivity().supportFragmentManager.beginTransaction()
-//                    .replace(R.id.layout_main_fragment, fragmentToStorage)
-//                    .addToBackStack(null)
-//                    .commit()
-//            }
-//        }
+        adapter.itemClick = object : Adapter.ItemClick {
+            override fun onClick(view: View, position: Int) {
+                Log.d("ImageFragment", "item Clicked")
+                val itemFavorite = adapter.Holder(view as ItemRecyclerViewGridBinding).itemFavorite
+                itemFavorite.visibility = ImageView.VISIBLE
+
+                storageList.add(position)
+                val fragmentToStorage = StorageListFragment.newInstance(storageList)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.layout_main_fragment, fragmentToStorage)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        }
     }
 
     companion object {
@@ -104,24 +103,6 @@ class ImageListFragment : Fragment() {
             }
     }
 
-//    private fun communicateNetWork(query:String) = lifecycleScope.launch() {
-////    private fun communicateNetWork(query:String) = CoroutineScope(Dispatchers.IO).launch() {
-//        val authKey = "KakaoAK 6b59faaf5abcd2b644ef4de2d858419f"
-//        val responseData = dustNetWork.getData(authKey,query,"recency",1,80)
-////        val responseData = dustNetWork.getData(authKey,query,"recency",1,80).execute()
-//        items=responseData?.documents!!
-//
-////        if(responseData.isSuccessful){
-////            val data=responseData.body()
-////            data?.documents.let { DataItem ->
-////                items.clear()
-////                DataItem?.let { items.addAll(it) }
-////            }
-////        }else{
-////            Log.e("NetworkError","Response error: ${responseData.errorBody()}")
-////        }
-//
-//    }
 
     private suspend fun communicateNetWork(query: String): MutableList<DataItem>? {
         val authKey = "KakaoAK 6b59faaf5abcd2b644ef4de2d858419f"
@@ -130,3 +111,28 @@ class ImageListFragment : Fragment() {
         return items
     }
 }
+
+//    private fun communicateNetWork(query:String) = lifecycleScope.launch() {
+//        val authKey = "KakaoAK 6b59faaf5abcd2b644ef4de2d858419f"
+//        val responseData = dustNetWork.getData(authKey,query,"recency",1,80)
+//        items=responseData?.documents!!
+//
+//    }
+
+//동기식
+//    private fun communicateNetWork(query:String) = CoroutineScope(Dispatchers.IO).launch() {
+//        val authKey = "KakaoAK 6b59faaf5abcd2b644ef4de2d858419f"
+//        val responseData = dustNetWork.getData(authKey,query,"recency",1,80)
+//        val responseData = dustNetWork.getData(authKey,query,"recency",1,80).execute()
+//
+//        if(responseData.isSuccessful){
+//            val data=responseData.body()
+//            data?.documents.let { DataItem ->
+//                items.clear()
+//                DataItem?.let { items.addAll(it) }
+//            }
+//        }else{
+//            Log.e("NetworkError","Response error: ${responseData.errorBody()}")
+//        }
+//
+//    }

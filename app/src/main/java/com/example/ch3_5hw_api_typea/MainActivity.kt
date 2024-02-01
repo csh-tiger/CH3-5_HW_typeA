@@ -17,8 +17,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        binding.btnMainImgSearch.setBackgroundResource(R.color.purple)
-        binding.btnMainStorage.setBackgroundResource(R.color.purple)
 
         binding.apply {
             btnMainImgSearch.setOnClickListener {
