@@ -1,6 +1,8 @@
 package com.example.ch3_5hw_api_typea
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 data class Data(
     val meta: DataMeta,
@@ -15,7 +17,7 @@ data class DataMeta(
     @SerializedName("is_end")
     val isEnd:Boolean
 )
-
+@Parcelize
 data class DataItem(
     val collection: String,    //분류(news, )
     @SerializedName("thumbnail_url")
@@ -29,7 +31,7 @@ data class DataItem(
     @SerializedName("doc_url")
     val docUrl: String,    //본문 url
     val datetime: String    //작성시간
-)
+) : Parcelable
 
 
 //data class DataResponse(

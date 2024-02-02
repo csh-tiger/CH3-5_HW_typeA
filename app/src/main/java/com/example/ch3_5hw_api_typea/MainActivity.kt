@@ -5,18 +5,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.lifecycle.lifecycleScope
 import com.example.ch3_5hw_api_typea.databinding.ActivityMainBinding
-import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), FragmentDataListener {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    var items = mutableListOf<DataItem>()
+    var favoriteList : ArrayList<Int> = ArrayList()
+    var dataItems = mutableListOf<DataItem>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-
 
         binding.apply {
             btnMainImgSearch.setOnClickListener {
@@ -37,6 +35,16 @@ class MainActivity : AppCompatActivity() {
             setReorderingAllowed(true)      //프래그먼트 상태변경 최적화시킴(애니메이션 전환)
             addToBackStack("")      //뒤로가기 버튼 클릭시
         }
+    }
+    override fun onDataReceived(data: MutableList<DataItem>) {
+        Log.d("MainActivity", "#csh data1=$data")
+//        Log.d("MainActivity", "#csh data2=$data2")
+//        favoriteList=data1
+        dataItems=data
+//        binding.btnMainStorage.setOnClickListener {
+//            val toStorage= StorageListFragment.newInstance(data1,data2)
+//            setFragment(toStorage)
+//        }
     }
 
     //Coroutine Async(비동기)

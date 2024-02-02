@@ -1,5 +1,6 @@
 package com.example.ch3_5hw_api_typea
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,25 +13,38 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.ch3_5hw_api_typea.NetWorkClient.dustNetWork
 import com.example.ch3_5hw_api_typea.databinding.FragmentImageListBinding
 import com.example.ch3_5hw_api_typea.databinding.ItemRecyclerViewGridBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
+interface FragmentDataListener {
+    fun onDataReceived(data:MutableList<DataItem>)
+}
+
 class ImageListFragment : Fragment() {
+
     private var param1: String? = null
     private var param2: String? = null
+    var listener: FragmentDataListener? = null
 
     private var _binding: FragmentImageListBinding? = null
     private val binding get() = _binding!!
 
     var items = mutableListOf<DataItem>()
-    var storageList:ArrayList<Int> = ArrayList()
+    var favoriteList: ArrayList<Int> = ArrayList()
 
     private var adapter = Adapter(items)
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (context is FragmentDataListener) {
+            listener = context
+        } else {
+            throw RuntimeException("$context must implement FragmentDataListener")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,43 +65,55 @@ class ImageListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        imgListFunction()
+        Log.d("ImageFragment", "#csh imgListFunction()")
+    }
+
+    fun imgListFunction(){
+        val itemClick = object : Adapter.ItemClick {
+            override fun onClick(view: View, position: Int) {
+                val itemFavorite = binding.recyclerImgList.findViewHolderForAdapterPosition(position) as Adapter.Holder
+                if(itemFavorite.itemFavorite.visibility==View.INVISIBLE || itemFavorite.itemFavorite.visibility==View.GONE){
+                    itemFavorite.itemFavorite.visibility = View.VISIBLE
+                    favoriteList.add(position)
+
+                }else{
+                    itemFavorite.itemFavorite.visibility = View.INVISIBLE
+                    favoriteList.remove(position)
+                }
+                favoriteList.sort()
+
+                val storageData=mutableListOf<DataItem>()
+                favoriteList?.forEach { index ->
+                    items?.get(index)?.let { dataItem ->
+                        storageData.add(dataItem)
+                    }
+                }
+
+
+
+                Log.d("ImageFragment", "#csh storageList=$storageData")
+                listener?.onDataReceived(storageData)
+            }
+        }
+
         //검색버튼 클릭시 검색결과 리스트 출력
         binding.btnImgListSearch.setOnClickListener {
             val searchText = binding.editImgListSearch.text.toString()
 
             lifecycleScope.launch {
-                val responseData = communicateNetWork(searchText)
+                items = communicateNetWork(searchText)
 
-                if (responseData != null) {
-                    adapter = Adapter(responseData)
+
+                if (items != null) {
+                    adapter = Adapter(items)
                     binding.recyclerImgList.adapter = adapter
+//                    binding.recyclerImgList.layoutManager = LinearLayoutManager(context)
                     binding.recyclerImgList.layoutManager = GridLayoutManager(requireContext(), 2)
-                    Log.d("ImageFragment", "item=${responseData}")
+                    Log.d("ImageFragment", "#csh item=${items}")
+
+                    adapter.itemClick = itemClick
                 }
-            }
-
-//            communicateNetWork(searchText)
-//
-//            adapter = Adapter(items)
-//            binding.recyclerImgList.adapter = adapter
-//            binding.recyclerImgList.layoutManager = GridLayoutManager(requireContext(), 2)
-//            Log.d("ImageFragment", "item=$items")
-        }
-
-        //아이템 클릭시 좋아요 표시 & 데이터 전달
-//        adapter = Adapter(items)
-        adapter.itemClick = object : Adapter.ItemClick {
-            override fun onClick(view: View, position: Int) {
-                Log.d("ImageFragment", "item Clicked")
-                val itemFavorite = adapter.Holder(view as ItemRecyclerViewGridBinding).itemFavorite
-                itemFavorite.visibility = ImageView.VISIBLE
-
-                storageList.add(position)
-                val fragmentToStorage = StorageListFragment.newInstance(storageList)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.layout_main_fragment, fragmentToStorage)
-                    .addToBackStack(null)
-                    .commit()
             }
         }
     }
@@ -103,12 +129,11 @@ class ImageListFragment : Fragment() {
             }
     }
 
-
-    private suspend fun communicateNetWork(query: String): MutableList<DataItem>? {
+    private suspend fun communicateNetWork(query: String): MutableList<DataItem> {
         val authKey = "KakaoAK 6b59faaf5abcd2b644ef4de2d858419f"
         val responseData = dustNetWork.getData(authKey, query, "recency", 1, 80)
-        items=responseData?.documents!!
-        return items
+        val result = responseData?.documents!!
+        return result
     }
 }
 

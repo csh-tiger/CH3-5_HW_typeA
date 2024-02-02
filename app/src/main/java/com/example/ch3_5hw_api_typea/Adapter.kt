@@ -3,7 +3,6 @@ package com.example.ch3_5hw_api_typea
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.ch3_5hw_api_typea.databinding.ItemRecyclerViewGridBinding
